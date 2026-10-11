@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env
+.env.*
+apps/web/.next
+apps/web/node_modules
+apps/api/node_modules
+packages/shared/node_modules
+coverage
+Dockerfile*

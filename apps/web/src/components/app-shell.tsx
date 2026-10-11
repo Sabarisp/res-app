@@ -1,0 +1,121 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/features/auth/auth-context';
+import { BRAND } from '@/lib/brand';
+
+type AppShellProps = {
+  title: string;
+  variant?: 'customer' | 'staff';
+  children: React.ReactNode;
+};
+
+const staffLinks = [
+  { href: '/waiter', label: 'Waiter POS' },
+  { href: '/kitchen', label: 'Kitchen' },
+  { href: '/cashier', label: 'Cashier' },
+  { href: '/admin', label: 'Admin' },
+];
+
+const customerLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/t/tbl-01', label: 'Demo table' },
+];
+
+export function AppShell({ title, variant = 'customer', children }: AppShellProps) {
+  const { user, logout } = useAuth();
+  const pathname = usePathname();
+
+  return (
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--ink)]">
+      <header className="border-b border-[var(--line)] bg-[var(--surface)]/90 backdrop-blur-sm sticky top-0 z-40">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--brand)] text-[var(--brand-ink)] font-black text-xl">
+                T
+              </div>
+              <span className="font-display font-extrabold text-xl tracking-tight text-[var(--ink)]">
+                {BRAND.name}
+              </span>
+            </Link>
+            <span className="hidden sm:inline-block text-xs font-semibold uppercase tracking-widest text-[var(--ink-muted)] border-l border-[var(--line)] pl-3">
+              {title}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <nav className="hidden md:flex items-center gap-2">
+              {(variant === 'staff' ? staffLinks : customerLinks).map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`rounded-xl px-3.5 py-1.5 text-sm font-semibold transition ${
+                    pathname === link.href
+                      ? 'bg-[var(--brand)] text-[var(--brand-ink)]'
+                      : 'text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--bg)]'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+
+            {user ? (
+              <div className="flex items-center gap-3">
+                <div className="hidden sm:block text-right">
+                  <p className="text-xs font-bold text-[var(--ink)]">{user.name}</p>
+                  <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--brand)]">{user.role}</p>
+                </div>
+                <button
+                  onClick={() => logout()}
+                  className="min-h-[36px] rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-1.5 text-xs font-semibold text-[var(--ink)] transition hover:border-[var(--line)] hover:bg-[var(--line)]"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="rounded-xl bg-[var(--brand)] px-4 py-2 text-xs font-semibold text-[var(--brand-ink)] transition hover:opacity-90 min-h-[36px] flex items-center"
+              >
+                Staff Login
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {variant === 'staff' ? (
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 md:grid-cols-[220px_1fr] sm:px-6">
+          <aside className="h-fit rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 shadow-sm">
+            <p className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--ink-muted)]">Operations</p>
+            <div className="space-y-1.5">
+              {staffLinks.map((link) => {
+                const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`block rounded-xl px-3.5 py-2 text-sm font-semibold transition ${
+                      isActive
+                        ? 'bg-[var(--brand)] text-[var(--brand-ink)]'
+                        : 'text-[var(--ink)] hover:bg-[var(--bg)] border border-transparent hover:border-[var(--line)]'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </aside>
+          <main>{children}</main>
+        </div>
+      ) : (
+        <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">{children}</main>
+      )}
+    </div>
+  );
+}
