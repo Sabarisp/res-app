@@ -75,6 +75,7 @@ Multi-restaurant support, WhatsApp, AI features, inventory reports, delivery tra
 - Customer and waiter controls have at least 44px touch targets. Keep keyboard focus visible, maintain at least 4.5:1 text contrast, and respect `prefers-reduced-motion`.
 - Use motion only in response to an action or status change; do not add decorative entrance animations.
 - Use fixed-size square food images via `next/image` to prevent layout shifts. When an item has no image, show a neutral tile with its first letter rather than a broken image.
+- Seed menu items carry real, freely licensed food photos in `imageUrl` (files in `apps/web/public/menu/`, attributions in `apps/web/public/menu/CREDITS.md`); re-running the seed must keep them.
 
 ### UI review
 
