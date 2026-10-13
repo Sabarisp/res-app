@@ -9,15 +9,28 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      # npm ci leaves @prisma/client as an empty placeholder; the real types
+      # (Role, Station, Decimal, ...) only exist after prisma generate.
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: apps/api
+        env:
+          DATABASE_URL: postgresql://user:pass@localhost:5432/ci-placeholder
+
+      # packages/shared is consumed via dist at runtime (jest, tsx); dist is
+      # gitignored, so it must be built before the test step.
+      - name: Build shared package
+        run: npm run build:shared
 
       - name: Typecheck
         run: npm run typecheck
