@@ -5,7 +5,6 @@ import { BRAND } from '@/lib/brand';
 
 const features = [
   { href: '/login', label: 'Staff login' },
-  { href: '/t/tbl-01', label: 'Customer menu demo' },
   { href: '/waiter', label: 'Waiter POS' },
   { href: '/kitchen', label: 'Kitchen display' },
   { href: '/cashier', label: 'Cashier' },
@@ -21,13 +20,13 @@ export default function HomePage() {
         <p className="mt-4 max-w-2xl text-lg text-[var(--brand-ink)]/90">
           {BRAND.tagline}
         </p>
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <Link href="/login" className="rounded-full bg-[var(--surface)] px-4 py-2 font-semibold text-[var(--brand)] transition hover:opacity-90">
             Staff login
           </Link>
-          <Link href="/t/tbl-01" className="rounded-full border border-[var(--brand-ink)]/70 px-4 py-2 font-semibold text-[var(--brand-ink)] transition hover:bg-[var(--brand-ink)]/10">
-            Open demo table
-          </Link>
+          <p className="text-sm text-[var(--brand-ink)]/90">
+            Guests: scan the QR code on your table to browse the menu and place your order.
+          </p>
         </div>
       </section>
 

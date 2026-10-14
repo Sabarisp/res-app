@@ -26,7 +26,6 @@ const staffLinks: StaffLink[] = [
 
 const customerLinks = [
   { href: '/', label: 'Home' },
-  { href: '/t/tbl-01', label: 'Demo table' },
 ];
 
 export function AppShell({ title, variant = 'customer', children }: AppShellProps) {
