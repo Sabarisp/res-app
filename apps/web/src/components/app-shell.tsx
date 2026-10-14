@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/features/auth/auth-context';
+import { AppRole } from '@restaurant/shared';
 import { BRAND } from '@/lib/brand';
 
 type AppShellProps = {
@@ -12,11 +13,15 @@ type AppShellProps = {
   children: React.ReactNode;
 };
 
-const staffLinks = [
-  { href: '/waiter', label: 'Waiter POS' },
-  { href: '/kitchen', label: 'Kitchen' },
-  { href: '/cashier', label: 'Cashier' },
-  { href: '/admin', label: 'Admin' },
+type StaffLink = { href: string; label: string; roles: AppRole[] };
+
+// Only show links the signed-in role can actually open (matches each
+// page's RoleGuard and the API's requireRole checks).
+const staffLinks: StaffLink[] = [
+  { href: '/waiter', label: 'Waiter POS', roles: ['WAITER', 'MANAGER', 'ADMIN'] },
+  { href: '/kitchen', label: 'Kitchen', roles: ['CHEF', 'MANAGER', 'ADMIN'] },
+  { href: '/cashier', label: 'Cashier', roles: ['CASHIER', 'MANAGER', 'ADMIN'] },
+  { href: '/admin', label: 'Admin', roles: ['ADMIN', 'MANAGER'] },
 ];
 
 const customerLinks = [
@@ -27,6 +32,10 @@ const customerLinks = [
 export function AppShell({ title, variant = 'customer', children }: AppShellProps) {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+
+  const homeLink = { href: '/', label: 'Home' };
+  const visibleStaffLinks = user ? staffLinks.filter((link) => link.roles.includes(user.role)) : [];
+  const headerLinks = variant === 'staff' ? [homeLink, ...visibleStaffLinks] : customerLinks;
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--ink)]">
@@ -48,7 +57,7 @@ export function AppShell({ title, variant = 'customer', children }: AppShellProp
 
           <div className="flex items-center gap-4">
             <nav className="hidden md:flex items-center gap-2">
-              {(variant === 'staff' ? staffLinks : customerLinks).map((link) => (
+              {headerLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -91,9 +100,19 @@ export function AppShell({ title, variant = 'customer', children }: AppShellProp
       {variant === 'staff' ? (
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 md:grid-cols-[220px_1fr] sm:px-6">
           <aside className="h-fit rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 shadow-sm">
-            <p className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--ink-muted)]">Operations</p>
             <div className="space-y-1.5">
-              {staffLinks.map((link) => {
+              <Link
+                href="/"
+                className={`block rounded-xl px-3.5 py-2 text-sm font-semibold transition ${
+                  pathname === '/'
+                    ? 'bg-[var(--brand)] text-[var(--brand-ink)]'
+                    : 'text-[var(--ink)] hover:bg-[var(--bg)] border border-transparent hover:border-[var(--line)]'
+                }`}
+              >
+                ← Home
+              </Link>
+              <p className="!mt-4 text-xs font-bold uppercase tracking-wider text-[var(--ink-muted)]">Operations</p>
+              {visibleStaffLinks.map((link) => {
                 const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
                 return (
                   <Link
@@ -109,6 +128,9 @@ export function AppShell({ title, variant = 'customer', children }: AppShellProp
                   </Link>
                 );
               })}
+              {visibleStaffLinks.length === 0 ? (
+                <p className="px-3.5 text-xs text-[var(--ink-muted)]">Sign in with a staff account to open these tools.</p>
+              ) : null}
             </div>
           </aside>
           <main>{children}</main>

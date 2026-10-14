@@ -173,10 +173,17 @@ export function CustomerMenu({ qrToken }: { qrToken: string }) {
 
   if (error && !table) {
     const invalidLink = errorCode === 'TABLE_NOT_FOUND' || errorCode === 'INVALID_QR_TOKEN';
+    const rateLimited = errorCode === 'TOO_MANY_REQUESTS';
+    if (rateLimited) {
+      return <AppShell title="Table menu" variant="customer"><ErrorState title="The system is busy" description="We are handling a lot of requests right now. Wait a minute, then tap Try again." actionLabel="Try again" onAction={() => void loadData()} /></AppShell>;
+    }
     return <AppShell title="Table menu" variant="customer"><ErrorState title={invalidLink ? 'This table link is unavailable' : 'Unable to verify this table'} description={invalidLink ? 'This QR code does not match an active table. Check the QR code or ask staff for a valid table link.' : 'The restaurant could not verify this QR link right now. Check your connection and try again.'} actionLabel="Try again" onAction={() => void loadData()} /></AppShell>;
   }
 
   if (error && table && categories.length === 0) {
+    if (errorCode === 'TOO_MANY_REQUESTS') {
+      return <AppShell title="Table menu" variant="customer"><ErrorState title="The system is busy" description="We are handling a lot of requests right now. Wait a minute, then tap Try again." actionLabel="Try again" onAction={() => void loadData()} /></AppShell>;
+    }
     return <AppShell title="Table menu" variant="customer"><ErrorState title="The menu could not load" description="Your table link is valid, but the menu did not load. Check your connection and try again." actionLabel="Try again" onAction={() => void loadData()} /></AppShell>;
   }
 
